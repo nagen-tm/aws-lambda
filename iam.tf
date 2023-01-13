@@ -5,13 +5,13 @@ resource "aws_iam_role" "hello_world"{
   name = "${var.repo_name}-lambda-hello-world"
 
   assume_role_policy = jsonencode({
-    Version : "2012-10-17",
-    Statement : [{
-      Action : "sts:AssumeRole",
-      Principle : {
-        Service : "lambda.amazonaws.com"
+    "Version" : "2012-10-17",
+    "Statement" : [{
+      "Action" : "sts:AssumeRole",
+      "Principle" : {
+        "Service" : ["lambda.amazonaws.com", "apigateway.amazonaws.com"]
       },
-      Effect : "Allow"
+      "Effect" : "Allow"
     }]
   })
 }
@@ -24,24 +24,32 @@ resource "aws_iam_role_policy" "hello_world" {
   # Terraform's "jsonencode" function converts a
   # Terraform expression result to valid JSON syntax.
   policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Action = [
+    "Version" = "2012-10-17"
+    "Statement" = [{
+      "Action" = [
         "logs:CreateLogGroup",
         "logs:CreateLogStream",
         "logs:PutLogEvents"
       ]
-      Effect   = "Allow"
-      Resource = "${}"
+      "Effect"   = "Allow"
+      "Resource" = "${aws_cloudwatch_log_group.hello_world.arn}"
     }, {
-      Action = [
+      "Action" = [
         "ec2:CreateNetworkInterface",
         "ec2:DeleteNetworkInterface",
         "ec2:DescribeNetworkInterfaces"
       ]
-      Effect   = "Allow"
-      Resource = "*"
-    },    
+      "Effect"   = "Allow"
+      "Resource" = "*"
+    }, {
+      "Effect": "Allow",
+      "Action": [
+        "lambda:InvokeFunction"
+      ],
+      "Resource": [
+        "*"
+      ]
+    }   
     ]
   })
 }
